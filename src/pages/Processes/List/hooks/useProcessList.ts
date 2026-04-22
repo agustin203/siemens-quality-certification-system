@@ -44,6 +44,32 @@ export const useProcessList = () => {
     );
   };
 
+  const handleCreate = (
+    data: Pick<
+      CertificationProcess,
+      'nombre' | 'modelo' | 'familia' | 'linea' | 'turno'
+    >,
+  ) => {
+    const newProcess: CertificationProcess = {
+      ...data,
+      id: `proc-${Date.now()}`,
+      version: 1,
+      status: 'draft',
+      createdAt: new Date().toISOString(),
+    };
+    setProcesses(prev => [newProcess, ...prev]);
+  };
+
+  const handleEdit = (
+    id: string,
+    data: Pick<
+      CertificationProcess,
+      'nombre' | 'modelo' | 'familia' | 'linea' | 'turno'
+    >,
+  ) => {
+    setProcesses(prev => prev.map(p => (p.id === id ? { ...p, ...data } : p)));
+  };
+
   return {
     processes,
     filteredProcesses,
@@ -58,5 +84,7 @@ export const useProcessList = () => {
     totalPages,
     handleArchive,
     handlePublish,
+    handleCreate,
+    handleEdit,
   };
 };

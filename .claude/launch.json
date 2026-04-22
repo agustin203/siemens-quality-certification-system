@@ -3,8 +3,8 @@
   "configurations": [
     {
       "name": "dev",
-      "runtimeExecutable": "bun",
-      "runtimeArgs": ["scripts/dev.ts"],
+      "runtimeExecutable": "/Users/agustinlopezpalazzini/.bun/bin/bun",
+      "runtimeArgs": ["run", "dev"],
       "port": 3000
     }
   ]

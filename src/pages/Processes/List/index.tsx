@@ -27,6 +27,7 @@ import TableHead from '@material-hu/components/design-system/Table/components/Ta
 import TableRow from '@material-hu/components/design-system/Table/components/TableRow';
 import Title from '@material-hu/components/design-system/Title';
 import { useDialogLayer } from '@material-hu/components/layers/Dialogs';
+import { useDrawerLayer } from '@material-hu/components/layers/Drawers';
 import { useMenuLayer } from '@material-hu/components/layers/Menus';
 
 import { DashboardLayout } from '../../../layouts/DashboardLayout';
@@ -34,12 +35,14 @@ import { STATUS_CONFIG, STATUS_FILTER_OPTIONS } from '../constants';
 import { processesRoutes } from '../routes';
 import { type CertificationProcess } from '../types';
 
+import ProcessForm, { type ProcessFormValues } from './components/ProcessForm';
 import { useProcessList } from './hooks/useProcessList';
 
 const ProcessList = () => {
   const navigate = useNavigate();
   const { openMenu } = useMenuLayer();
   const { openDialog, closeDialog } = useDialogLayer();
+  const { openDrawer, closeDrawer } = useDrawerLayer();
 
   const {
     paginatedProcesses,
@@ -53,7 +56,58 @@ const ProcessList = () => {
     totalPages,
     handleArchive,
     handlePublish,
+    handleCreate,
+    handleEdit,
   } = useProcessList();
+
+  const openCreateDrawer = () => {
+    openDrawer({
+      title: 'Nuevo proceso',
+      size: 'medium',
+      children: (
+        <ProcessForm
+          onSubmit={(data: ProcessFormValues) => {
+            handleCreate(data);
+            closeDrawer();
+          }}
+        />
+      ),
+      primaryButtonProps: {
+        children: 'Guardar',
+        form: 'proceso-form',
+        type: 'submit',
+      },
+      secondaryButtonProps: {
+        children: 'Cancelar',
+        onClick: () => closeDrawer(),
+      },
+    });
+  };
+
+  const openEditDrawer = (process: CertificationProcess) => {
+    openDrawer({
+      title: 'Editar proceso',
+      size: 'medium',
+      children: (
+        <ProcessForm
+          defaultValues={process}
+          onSubmit={(data: ProcessFormValues) => {
+            handleEdit(process.id, data);
+            closeDrawer();
+          }}
+        />
+      ),
+      primaryButtonProps: {
+        children: 'Guardar',
+        form: 'proceso-form',
+        type: 'submit',
+      },
+      secondaryButtonProps: {
+        children: 'Cancelar',
+        onClick: () => closeDrawer(),
+      },
+    });
+  };
 
   const openRowMenu = (
     event: React.MouseEvent<HTMLElement>,
@@ -70,7 +124,7 @@ const ProcessList = () => {
         id: 'edit',
         title: 'Editar',
         icon: IconEdit,
-        onSelect: () => {},
+        onSelect: () => openEditDrawer(process),
       },
       ...(process.status === 'draft'
         ? [
@@ -130,19 +184,20 @@ const ProcessList = () => {
           />
           <Button
             startIcon={<IconPlus />}
-            onClick={() => {}}
+            onClick={openCreateDrawer}
           >
             Nuevo proceso
           </Button>
         </Stack>
 
         <Stack sx={{ flexDirection: 'row', gap: 3, alignItems: 'center' }}>
-          <Search
-            value={search}
-            onChange={setSearch}
-            placeholder="Buscar por nombre..."
-            sx={{ flex: 1, maxWidth: 320 }}
-          />
+          <Stack sx={{ flex: 1, maxWidth: 320 }}>
+            <Search
+              value={search}
+              onChange={value => setSearch(value)}
+              placeholder="Buscar por nombre..."
+            />
+          </Stack>
           <Select
             value={statusFilter}
             onChange={value => setStatusFilter(value as typeof statusFilter)}
