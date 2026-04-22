@@ -23,6 +23,7 @@ import TableHead from '@material-hu/components/design-system/Table/components/Ta
 import TableRow from '@material-hu/components/design-system/Table/components/TableRow';
 import Title from '@material-hu/components/design-system/Title';
 import { useDialogLayer } from '@material-hu/components/layers/Dialogs';
+import { useDrawerLayer } from '@material-hu/components/layers/Drawers';
 import { useMenuLayer } from '@material-hu/components/layers/Menus';
 
 import { DashboardLayout } from '../../../layouts/DashboardLayout';
@@ -30,14 +31,73 @@ import { STATUS_CONFIG } from '../constants';
 import { processesRoutes } from '../routes';
 import { type CertificationOperation } from '../types';
 
+import OperationForm, {
+  type OperationFormValues,
+} from './components/OperationForm';
 import { useProcessDetail } from './hooks/useProcessDetail';
 
 const ProcessDetail = () => {
   const navigate = useNavigate();
   const { openMenu } = useMenuLayer();
   const { openDialog, closeDialog } = useDialogLayer();
+  const { openDrawer, closeDrawer } = useDrawerLayer();
 
-  const { process, operations, handleDeleteOperation } = useProcessDetail();
+  const {
+    process,
+    operations,
+    handleCreateOperation,
+    handleEditOperation,
+    handleDeleteOperation,
+  } = useProcessDetail();
+
+  const openCreateDrawer = () => {
+    openDrawer({
+      title: 'Nueva operación',
+      size: 'small',
+      children: (
+        <OperationForm
+          onSubmit={(values: OperationFormValues) => {
+            handleCreateOperation(values);
+            closeDrawer();
+          }}
+        />
+      ),
+      primaryButtonProps: {
+        children: 'Guardar',
+        form: 'operation-form',
+        type: 'submit',
+      },
+      secondaryButtonProps: {
+        children: 'Cancelar',
+        onClick: () => closeDrawer(),
+      },
+    });
+  };
+
+  const openEditDrawer = (operation: CertificationOperation) => {
+    openDrawer({
+      title: 'Editar operación',
+      size: 'small',
+      children: (
+        <OperationForm
+          defaultValues={operation}
+          onSubmit={(values: OperationFormValues) => {
+            handleEditOperation(operation.id, values);
+            closeDrawer();
+          }}
+        />
+      ),
+      primaryButtonProps: {
+        children: 'Guardar',
+        form: 'operation-form',
+        type: 'submit',
+      },
+      secondaryButtonProps: {
+        children: 'Cancelar',
+        onClick: () => closeDrawer(),
+      },
+    });
+  };
 
   const openRowMenu = (
     event: React.MouseEvent<HTMLElement>,
@@ -50,7 +110,7 @@ const ProcessDetail = () => {
           id: 'edit',
           title: 'Editar',
           icon: IconEdit,
-          onSelect: () => {},
+          onSelect: () => openEditDrawer(operation),
         },
         {
           id: 'delete',
@@ -95,13 +155,7 @@ const ProcessDetail = () => {
   return (
     <DashboardLayout>
       <Stack sx={{ gap: 6 }}>
-        <Stack
-          sx={{
-            flexDirection: 'row',
-            alignItems: 'flex-start',
-            gap: 2,
-          }}
-        >
+        <Stack sx={{ flexDirection: 'row', alignItems: 'flex-start', gap: 2 }}>
           <IconButton
             onClick={() => navigate(processesRoutes.list())}
             sx={{ mt: 0.5 }}
@@ -123,7 +177,7 @@ const ProcessDetail = () => {
             />
             <Button
               startIcon={<IconPlus />}
-              onClick={() => {}}
+              onClick={openCreateDrawer}
             >
               Nueva operación
             </Button>

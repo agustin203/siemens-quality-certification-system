@@ -13,6 +13,28 @@ export const useProcessDetail = () => {
     MOCK_OPERATIONS.filter(op => op.process_id === id),
   );
 
+  const handleCreateOperation = (
+    data: Pick<CertificationOperation, 'nombre' | 'tiempo_estandar_seg'>,
+  ) => {
+    const newOp: CertificationOperation = {
+      id: `op-${Date.now()}`,
+      process_id: id ?? '',
+      orden: operations.length + 1,
+      nombre: data.nombre,
+      tiempo_estandar_seg: data.tiempo_estandar_seg,
+    };
+    setOperations(prev => [...prev, newOp]);
+  };
+
+  const handleEditOperation = (
+    operationId: string,
+    data: Pick<CertificationOperation, 'nombre' | 'tiempo_estandar_seg'>,
+  ) => {
+    setOperations(prev =>
+      prev.map(op => (op.id === operationId ? { ...op, ...data } : op)),
+    );
+  };
+
   const handleDeleteOperation = (operationId: string) => {
     setOperations(prev => prev.filter(op => op.id !== operationId));
   };
@@ -20,6 +42,8 @@ export const useProcessDetail = () => {
   return {
     process,
     operations,
+    handleCreateOperation,
+    handleEditOperation,
     handleDeleteOperation,
   };
 };
