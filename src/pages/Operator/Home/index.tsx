@@ -1,3 +1,5 @@
+import { useNavigate } from 'react-router-dom';
+
 import {
   IconBan,
   IconCertificate,
@@ -46,6 +48,7 @@ const formatDate = (dateStr: string) =>
   });
 
 const OperatorHome = () => {
+  const navigate = useNavigate();
   const { openMenu } = useMenuLayer();
   const { openDialog, closeDialog } = useDialogLayer();
   const { openDrawer, closeDrawer } = useDrawerLayer();
@@ -209,7 +212,15 @@ const OperatorHome = () => {
                 </TableHead>
                 <TableBody>
                   {paginatedCertifications.map(cert => (
-                    <TableRow key={cert.id}>
+                    <TableRow
+                      key={cert.id}
+                      sx={{ cursor: 'pointer' }}
+                      onClick={() =>
+                        navigate(`/operator/certifications/${cert.id}`, {
+                          state: cert,
+                        })
+                      }
+                    >
                       <TableCell>
                         <Typography variant="body2">
                           {cert.processName}
@@ -242,7 +253,10 @@ const OperatorHome = () => {
                         {cert.status === 'in_progress' && (
                           <IconButton
                             size="small"
-                            onClick={e => openRowMenu(e, cert)}
+                            onClick={e => {
+                              e.stopPropagation();
+                              openRowMenu(e, cert);
+                            }}
                           >
                             <IconDotsVertical size={20} />
                           </IconButton>

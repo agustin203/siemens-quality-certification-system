@@ -20,6 +20,9 @@ const LoginPage = lazy(() => import('./pages/Auth/Login'));
 const ProcessList = lazy(() => import('./pages/Processes/List'));
 const ProcessDetail = lazy(() => import('./pages/Processes/Detail'));
 const OperatorHome = lazy(() => import('./pages/Operator/Home'));
+const CertificationDetail = lazy(
+  () => import('./pages/Operator/CertificationDetail'),
+);
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
@@ -78,6 +81,14 @@ const App = () => {
                         element={
                           <ProtectedRoute>
                             <OperatorHome />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/operator/certifications/:id"
+                        element={
+                          <ProtectedRoute>
+                            <CertificationDetail />
                           </ProtectedRoute>
                         }
                       />
