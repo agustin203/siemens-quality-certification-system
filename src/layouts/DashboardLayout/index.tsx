@@ -1,7 +1,11 @@
 import { type ReactNode, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 
-import { IconClipboardList, IconHome } from '@material-hu/icons/tabler';
+import {
+  IconCertificate,
+  IconClipboardList,
+  IconHome,
+} from '@material-hu/icons/tabler';
 import Stack from '@material-hu/mui/Stack';
 
 import Button from '@material-hu/components/design-system/Buttons/Button';
@@ -27,6 +31,12 @@ const SECTIONS: NavSectionProps[] = [
         title: 'Procesos',
         path: '/processes',
         icon: <IconClipboardList />,
+      },
+      {
+        key: 'operator',
+        title: 'Mis certificaciones',
+        path: '/operator',
+        icon: <IconCertificate />,
       },
     ],
   },

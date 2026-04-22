@@ -19,6 +19,7 @@ const queryClient = new QueryClient();
 const LoginPage = lazy(() => import('./pages/Auth/Login'));
 const ProcessList = lazy(() => import('./pages/Processes/List'));
 const ProcessDetail = lazy(() => import('./pages/Processes/Detail'));
+const OperatorHome = lazy(() => import('./pages/Operator/Home'));
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
@@ -69,6 +70,14 @@ const App = () => {
                         element={
                           <ProtectedRoute>
                             <ProcessDetail />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/operator"
+                        element={
+                          <ProtectedRoute>
+                            <OperatorHome />
                           </ProtectedRoute>
                         }
                       />
