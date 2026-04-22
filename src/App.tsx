@@ -1,6 +1,7 @@
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { lazy, type ReactNode, Suspense } from 'react';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ThemeProvider } from '@material-hu/mui/styles';
 import { createHuGoTheme } from '@material-hu/theme/hugo';
 
@@ -9,10 +10,28 @@ import { DrawerLayerProvider } from '@material-hu/components/layers/Drawers';
 import { MenuLayerProvider } from '@material-hu/components/layers/Menus';
 
 import { HomePage } from './pages/Home';
+import { AuthProvider, useAuth } from './providers/AuthContext';
 import './i18n';
 
 const theme = createHuGoTheme();
 const queryClient = new QueryClient();
+
+const LoginPage = lazy(() => import('./pages/Auth/Login'));
+const ProcessList = lazy(() => import('./pages/Processes/List'));
+const ProcessDetail = lazy(() => import('./pages/Processes/Detail'));
+
+function ProtectedRoute({ children }: { children: ReactNode }) {
+  const { user, loading } = useAuth();
+  if (loading) return null;
+  if (!user)
+    return (
+      <Navigate
+        to="/login"
+        replace
+      />
+    );
+  return <>{children}</>;
+}
 
 const App = () => {
   return (
@@ -22,12 +41,40 @@ const App = () => {
           <DialogLayerProvider>
             <DrawerLayerProvider>
               <BrowserRouter>
-                <Routes>
-                  <Route
-                    path="/"
-                    element={<HomePage />}
-                  />
-                </Routes>
+                <AuthProvider>
+                  <Suspense fallback={null}>
+                    <Routes>
+                      <Route
+                        path="/login"
+                        element={<LoginPage />}
+                      />
+                      <Route
+                        path="/"
+                        element={
+                          <ProtectedRoute>
+                            <HomePage />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/processes"
+                        element={
+                          <ProtectedRoute>
+                            <ProcessList />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/processes/:id"
+                        element={
+                          <ProtectedRoute>
+                            <ProcessDetail />
+                          </ProtectedRoute>
+                        }
+                      />
+                    </Routes>
+                  </Suspense>
+                </AuthProvider>
               </BrowserRouter>
             </DrawerLayerProvider>
           </DialogLayerProvider>

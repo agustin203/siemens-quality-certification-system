@@ -1,9 +1,10 @@
 import { type ReactNode, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 
-import { IconHome } from '@material-hu/icons/tabler';
+import { IconClipboardList, IconHome } from '@material-hu/icons/tabler';
 import Stack from '@material-hu/mui/Stack';
 
+import Button from '@material-hu/components/design-system/Buttons/Button';
 import HomeHeader from '@material-hu/components/design-system/Header/Home';
 import Sidebar from '@material-hu/components/design-system/Sidebar';
 import {
@@ -13,6 +14,7 @@ import {
 import { type NavSectionProps } from '@material-hu/components/design-system/Sidebar/types';
 
 import humandLogo from '../../assets/humand.svg';
+import { useAuth } from '../../providers/AuthContext';
 
 const SECTIONS: NavSectionProps[] = [
   {
@@ -20,6 +22,12 @@ const SECTIONS: NavSectionProps[] = [
     title: 'Main',
     items: [
       { key: 'home', title: 'Home', path: '/', icon: <IconHome /> },
+      {
+        key: 'processes',
+        title: 'Procesos',
+        path: '/processes',
+        icon: <IconClipboardList />,
+      },
     ],
   },
 ];
@@ -31,6 +39,7 @@ type DashboardLayoutProps = {
 export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const { pathname } = useLocation();
+  const { logout } = useAuth();
 
   const sidebarWidth = isCollapsed ? SIDEBAR_COLLAPSED_WIDTH : SIDEBAR_WIDTH;
 
@@ -44,7 +53,14 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         hideSupportButton
         isAdmin={false}
         avatarProps={{ text: 'U' }}
-        avatarPopoverContent={null}
+        avatarPopoverContent={
+          <Button
+            onClick={() => logout()}
+            variant="text"
+          >
+            Cerrar sesión
+          </Button>
+        }
         onOpenLanguageMenu={() => {}}
         supportButtonProps={{ href: '#' }}
         sx={{

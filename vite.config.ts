@@ -2,8 +2,24 @@ import { getNodeModule } from 'material-hu/vite';
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
+const spaFallback = {
+  name: 'spa-fallback',
+  configureServer(server: import('vite').ViteDevServer) {
+    server.middlewares.use((req, _res, next) => {
+      const url = req.url ?? '/';
+      const isAsset =
+        url.startsWith('/@') ||
+        url.startsWith('/api/') ||
+        url.startsWith('/node_modules/') ||
+        url.includes('.');
+      if (!isAsset) req.url = '/index.html';
+      next();
+    });
+  },
+};
+
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), spaFallback],
   server: {
     proxy: {
       '/api/postgrest': {
