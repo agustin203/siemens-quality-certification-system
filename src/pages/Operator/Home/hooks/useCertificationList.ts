@@ -1,10 +1,19 @@
 import { useEffect, useState } from 'react';
 
-import { MOCK_CERTIFICATIONS } from '../../constants';
+import {
+  MOCK_CERTIFICATIONS,
+  OPERATOR_OPERATIONS_BY_PROCESS,
+  PROCESS_FILTER_OPTIONS,
+} from '../../constants';
 import {
   type CertificationRequest,
   type CertificationStatus,
 } from '../../types';
+
+type NewCertificationInput = {
+  processId: string;
+  operationId: string;
+};
 
 type PeriodFilter = '30d' | '90d' | '365d';
 
@@ -56,6 +65,28 @@ export const useCertificationList = () => {
     );
   };
 
+  const handleCreate = (data: NewCertificationInput) => {
+    const processOption = PROCESS_FILTER_OPTIONS.find(
+      p => p.value === data.processId,
+    );
+    const operations = OPERATOR_OPERATIONS_BY_PROCESS[data.processId] ?? [];
+    const operationOption = operations.find(
+      op => op.value === data.operationId,
+    );
+
+    const newCert: CertificationRequest = {
+      id: `cert-${Date.now()}`,
+      processId: data.processId,
+      processName: processOption?.label ?? '',
+      operationId: data.operationId,
+      operationName: operationOption?.label ?? '',
+      requestDate: new Date().toISOString(),
+      status: 'in_progress',
+    };
+
+    setCertifications(prev => [newCert, ...prev]);
+  };
+
   return {
     filteredCertifications,
     paginatedCertifications,
@@ -69,5 +100,6 @@ export const useCertificationList = () => {
     setPage,
     totalPages,
     handleCancel,
+    handleCreate,
   };
 };

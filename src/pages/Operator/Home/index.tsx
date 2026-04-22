@@ -21,6 +21,7 @@ import TableHead from '@material-hu/components/design-system/Table/components/Ta
 import TableRow from '@material-hu/components/design-system/Table/components/TableRow';
 import Title from '@material-hu/components/design-system/Title';
 import { useDialogLayer } from '@material-hu/components/layers/Dialogs';
+import { useDrawerLayer } from '@material-hu/components/layers/Drawers';
 import { useMenuLayer } from '@material-hu/components/layers/Menus';
 
 import { DashboardLayout } from '../../../layouts/DashboardLayout';
@@ -32,6 +33,9 @@ import {
 } from '../constants';
 import { type CertificationRequest, type CertificationStatus } from '../types';
 
+import NewCertificationForm, {
+  type NewCertificationFormValues,
+} from './components/NewCertificationForm';
 import { useCertificationList } from './hooks/useCertificationList';
 
 const formatDate = (dateStr: string) =>
@@ -44,6 +48,7 @@ const formatDate = (dateStr: string) =>
 const OperatorHome = () => {
   const { openMenu } = useMenuLayer();
   const { openDialog, closeDialog } = useDialogLayer();
+  const { openDrawer, closeDrawer } = useDrawerLayer();
 
   const {
     filteredCertifications,
@@ -58,7 +63,32 @@ const OperatorHome = () => {
     setPage,
     totalPages,
     handleCancel,
+    handleCreate,
   } = useCertificationList();
+
+  const openNewCertificationDrawer = () => {
+    openDrawer({
+      title: 'Nueva certificación',
+      size: 'medium',
+      children: (
+        <NewCertificationForm
+          onSubmit={(data: NewCertificationFormValues) => {
+            handleCreate(data);
+            closeDrawer();
+          }}
+        />
+      ),
+      primaryButtonProps: {
+        children: 'Solicitar',
+        form: 'nueva-certificacion-form',
+        type: 'submit',
+      },
+      secondaryButtonProps: {
+        children: 'Cancelar',
+        onClick: () => closeDrawer(),
+      },
+    });
+  };
 
   const openRowMenu = (
     event: React.MouseEvent<HTMLElement>,
@@ -116,6 +146,7 @@ const OperatorHome = () => {
           <Button
             startIcon={<IconPlus />}
             size="large"
+            onClick={openNewCertificationDrawer}
           >
             Nueva certificación
           </Button>
