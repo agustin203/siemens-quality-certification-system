@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 
 import {
   IconCertificate,
+  IconChartBar,
   IconClipboardCheck,
   IconClipboardList,
   IconHistory,
@@ -64,6 +65,12 @@ const SECTIONS: NavSectionProps[] = [
         title: 'Historial ORO',
         path: '/oro/history',
         icon: <IconHistory />,
+      },
+      {
+        key: 'admin-dashboard',
+        title: 'Dashboard Admin',
+        path: '/admin',
+        icon: <IconChartBar />,
       },
     ],
   },
