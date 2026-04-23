@@ -4,6 +4,7 @@ import { useLocation } from 'react-router-dom';
 import {
   IconCertificate,
   IconClipboardList,
+  IconHistory,
   IconHome,
   IconListCheck,
 } from '@material-hu/icons/tabler';
@@ -44,6 +45,12 @@ const SECTIONS: NavSectionProps[] = [
         title: 'Mis certificaciones',
         path: '/operator',
         icon: <IconCertificate />,
+      },
+      {
+        key: 'operator-history',
+        title: 'Mi historial',
+        path: '/operator/history',
+        icon: <IconHistory />,
       },
     ],
   },

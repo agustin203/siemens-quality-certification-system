@@ -14,3 +14,21 @@ export type CertificationRequest = {
   status: CertificationStatus;
   expirationDate?: string;
 };
+
+export type AttemptResult = 'passed' | 'failed';
+
+export type CertificationAttempt = {
+  id: string;
+  requestId: string;
+  processId: string;
+  processName: string;
+  operationId: string;
+  operationName: string;
+  evaluatorName: string;
+  attemptNumber: number;
+  completedAt: string;
+  tiempoRegistradoSeg: number;
+  tiempoEstandarSeg: number;
+  meetsThreshold: boolean;
+  result: AttemptResult;
+};
