@@ -4,6 +4,7 @@ import { useLocation } from 'react-router-dom';
 import {
   IconCertificate,
   IconChartBar,
+  IconChartPie,
   IconClipboardCheck,
   IconClipboardList,
   IconHistory,
@@ -71,6 +72,12 @@ const SECTIONS: NavSectionProps[] = [
         title: 'Dashboard Admin',
         path: '/admin',
         icon: <IconChartBar />,
+      },
+      {
+        key: 'supervisor-dashboard',
+        title: 'Dashboard Supervisor',
+        path: '/supervisor',
+        icon: <IconChartPie />,
       },
     ],
   },
