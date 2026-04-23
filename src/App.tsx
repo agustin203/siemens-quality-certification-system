@@ -31,6 +31,7 @@ const OperatorHistory = lazy(() => import('./pages/Operator/History'));
 const OroBandeja = lazy(() => import('./pages/ORO/Bandeja'));
 const OroEvaluation = lazy(() => import('./pages/ORO/Evaluation'));
 const OroSignature = lazy(() => import('./pages/ORO/Signature'));
+const OroHistory = lazy(() => import('./pages/ORO/History'));
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
@@ -145,6 +146,14 @@ const App = () => {
                         element={
                           <ProtectedRoute>
                             <OroSignature />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/oro/history"
+                        element={
+                          <ProtectedRoute>
+                            <OroHistory />
                           </ProtectedRoute>
                         }
                       />

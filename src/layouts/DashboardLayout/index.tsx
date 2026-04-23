@@ -59,6 +59,12 @@ const SECTIONS: NavSectionProps[] = [
         path: '/oro',
         icon: <IconClipboardCheck />,
       },
+      {
+        key: 'oro-history',
+        title: 'Historial ORO',
+        path: '/oro/history',
+        icon: <IconHistory />,
+      },
     ],
   },
 ];

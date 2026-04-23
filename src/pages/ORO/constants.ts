@@ -1,4 +1,4 @@
-import { type PendingRequest } from './types';
+import { type OroEvaluationRecord, type PendingRequest } from './types';
 
 export const MOCK_PENDING_REQUESTS: PendingRequest[] = [
   {
@@ -53,5 +53,74 @@ export const MOCK_PENDING_REQUESTS: PendingRequest[] = [
     attemptNumber: 1,
     maxAttempts: 4,
     status: 'available',
+  },
+];
+
+export const MOCK_ORO_EVALUATIONS: OroEvaluationRecord[] = [
+  {
+    id: 'eval-1',
+    operatorName: 'Carlos Mendoza',
+    processName: 'Q120 — 1 Polo',
+    operationName: 'Colocar tapa superior',
+    evaluatedAt: '2026-04-18T10:30:00Z',
+    tiempoRegistradoSeg: 15.4,
+    tiempoEstandarSeg: 14,
+    attemptNumber: 1,
+    result: 'failed',
+  },
+  {
+    id: 'eval-2',
+    operatorName: 'Laura Romero',
+    processName: 'Q120 L2 — 1 Polo',
+    operationName: 'Soldar contacto inferior L2',
+    evaluatedAt: '2026-04-19T14:00:00Z',
+    tiempoRegistradoSeg: 18.2,
+    tiempoEstandarSeg: 20,
+    attemptNumber: 2,
+    result: 'passed',
+  },
+  {
+    id: 'eval-3',
+    operatorName: 'Juan Pérez',
+    processName: 'Q120 — 1 Polo',
+    operationName: 'Soldar contacto inferior',
+    evaluatedAt: '2026-04-20T09:15:00Z',
+    tiempoRegistradoSeg: 17.8,
+    tiempoEstandarSeg: 18,
+    attemptNumber: 2,
+    result: 'passed',
+  },
+  {
+    id: 'eval-4',
+    operatorName: 'Roberto Silva',
+    processName: 'Q150 — 4 Polos',
+    operationName: 'Insertar bimetálico',
+    evaluatedAt: '2026-04-21T11:45:00Z',
+    tiempoRegistradoSeg: 29.6,
+    tiempoEstandarSeg: 25,
+    attemptNumber: 1,
+    result: 'failed',
+  },
+  {
+    id: 'eval-5',
+    operatorName: 'María García',
+    processName: 'Q120 — 1 Polo',
+    operationName: 'Insertar resorte de contacto',
+    evaluatedAt: '2026-04-22T08:00:00Z',
+    tiempoRegistradoSeg: 11.3,
+    tiempoEstandarSeg: 12,
+    attemptNumber: 1,
+    result: 'passed',
+  },
+  {
+    id: 'eval-6',
+    operatorName: 'Ana Torres',
+    processName: 'Q120 L2 — 1 Polo',
+    operationName: 'Soldar contacto inferior L2',
+    evaluatedAt: '2026-04-23T07:30:00Z',
+    tiempoRegistradoSeg: 19.1,
+    tiempoEstandarSeg: 20,
+    attemptNumber: 1,
+    result: 'passed',
   },
 ];
