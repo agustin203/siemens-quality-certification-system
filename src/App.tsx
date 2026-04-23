@@ -29,6 +29,7 @@ const OperatorProcessDetail = lazy(
 );
 const OperatorHistory = lazy(() => import('./pages/Operator/History'));
 const OroBandeja = lazy(() => import('./pages/ORO/Bandeja'));
+const OroEvaluation = lazy(() => import('./pages/ORO/Evaluation'));
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
@@ -127,6 +128,14 @@ const App = () => {
                         element={
                           <ProtectedRoute>
                             <OroBandeja />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/oro/evaluation/:requestId"
+                        element={
+                          <ProtectedRoute>
+                            <OroEvaluation />
                           </ProtectedRoute>
                         }
                       />
