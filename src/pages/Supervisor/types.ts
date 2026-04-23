@@ -19,3 +19,21 @@ export type PendingOperator = {
   maxAttempts: number;
   lastAttemptDate?: string;
 };
+
+export type DrillAttempt = {
+  id: string;
+  operationName: string;
+  processName: string;
+  evaluatorName: string;
+  attemptNumber: number;
+  completedAt: string;
+  tiempoRegistradoSeg: number;
+  tiempoEstandarSeg: number;
+  result: 'passed' | 'failed';
+};
+
+export type EmployeeDrillData = {
+  operatorId: string;
+  operatorName: string;
+  attempts: DrillAttempt[];
+};

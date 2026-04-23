@@ -1,3 +1,5 @@
+import { useNavigate } from 'react-router-dom';
+
 import {
   IconAlertTriangle,
   IconCircleCheck,
@@ -16,7 +18,11 @@ import TableRow from '@material-hu/components/design-system/Table/components/Tab
 import Title from '@material-hu/components/design-system/Title';
 
 import { DashboardLayout } from '../../../layouts/DashboardLayout';
-import { MOCK_LINE_STATS, MOCK_PENDING_OPERATORS } from '../constants';
+import {
+  MOCK_EMPLOYEE_DRILL,
+  MOCK_LINE_STATS,
+  MOCK_PENDING_OPERATORS,
+} from '../constants';
 import { type RiskLevel } from '../types';
 
 const RISK_CONFIG: Record<
@@ -106,6 +112,7 @@ const ProgressBar = ({
 };
 
 const SupervisorDashboard = () => {
+  const navigate = useNavigate();
   const atRisk = MOCK_LINE_STATS.filter(s => s.risk !== 'ok').length;
   const totalCertified = MOCK_LINE_STATS.reduce((a, s) => a + s.certified, 0);
   const totalOperators = MOCK_LINE_STATS.reduce(
@@ -280,49 +287,64 @@ const SupervisorDashboard = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {MOCK_PENDING_OPERATORS.map(op => (
-                  <TableRow key={`${op.operatorId}-${op.operationName}`}>
-                    <TableCell>
-                      <Typography
-                        variant="body2"
-                        sx={{ fontWeight: 500 }}
-                      >
-                        {op.operatorName}
-                      </Typography>
-                    </TableCell>
-                    <TableCell>
-                      <Typography
-                        variant="body2"
-                        sx={{ color: 'new.text.neutral.subtle' }}
-                      >
-                        {op.processName}
-                      </Typography>
-                    </TableCell>
-                    <TableCell>
-                      <Typography variant="body2">
-                        {op.operationName}
-                      </Typography>
-                    </TableCell>
-                    <TableCell>
-                      <Typography
-                        variant="body2"
-                        sx={{ color: 'new.text.neutral.subtle' }}
-                      >
-                        {op.attemptNumber}/{op.maxAttempts}
-                      </Typography>
-                    </TableCell>
-                    <TableCell>
-                      <Typography
-                        variant="body2"
-                        sx={{ color: 'new.text.neutral.subtle' }}
-                      >
-                        {op.lastAttemptDate
-                          ? formatDate(op.lastAttemptDate)
-                          : '—'}
-                      </Typography>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {MOCK_PENDING_OPERATORS.map(op => {
+                  const drillData = MOCK_EMPLOYEE_DRILL[op.operatorId];
+                  return (
+                    <TableRow
+                      key={`${op.operatorId}-${op.operationName}`}
+                      onClick={
+                        drillData
+                          ? () =>
+                              navigate(
+                                `/supervisor/employee/${op.operatorId}`,
+                                { state: drillData },
+                              )
+                          : undefined
+                      }
+                      sx={drillData ? { cursor: 'pointer' } : undefined}
+                    >
+                      <TableCell>
+                        <Typography
+                          variant="body2"
+                          sx={{ fontWeight: 500 }}
+                        >
+                          {op.operatorName}
+                        </Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Typography
+                          variant="body2"
+                          sx={{ color: 'new.text.neutral.subtle' }}
+                        >
+                          {op.processName}
+                        </Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Typography variant="body2">
+                          {op.operationName}
+                        </Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Typography
+                          variant="body2"
+                          sx={{ color: 'new.text.neutral.subtle' }}
+                        >
+                          {op.attemptNumber}/{op.maxAttempts}
+                        </Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Typography
+                          variant="body2"
+                          sx={{ color: 'new.text.neutral.subtle' }}
+                        >
+                          {op.lastAttemptDate
+                            ? formatDate(op.lastAttemptDate)
+                            : '—'}
+                        </Typography>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           </TableContainer>

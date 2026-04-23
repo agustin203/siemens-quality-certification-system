@@ -34,6 +34,7 @@ const OroSignature = lazy(() => import('./pages/ORO/Signature'));
 const OroHistory = lazy(() => import('./pages/ORO/History'));
 const AdminDashboard = lazy(() => import('./pages/Admin/Dashboard'));
 const SupervisorDashboard = lazy(() => import('./pages/Supervisor/Dashboard'));
+const EmployeeDrill = lazy(() => import('./pages/Supervisor/EmployeeDrill'));
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
@@ -172,6 +173,14 @@ const App = () => {
                         element={
                           <ProtectedRoute>
                             <SupervisorDashboard />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/supervisor/employee/:operatorId"
+                        element={
+                          <ProtectedRoute>
+                            <EmployeeDrill />
                           </ProtectedRoute>
                         }
                       />
