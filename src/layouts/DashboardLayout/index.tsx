@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 
 import {
   IconCertificate,
+  IconClipboardCheck,
   IconClipboardList,
   IconHistory,
   IconHome,
@@ -51,6 +52,12 @@ const SECTIONS: NavSectionProps[] = [
         title: 'Mi historial',
         path: '/operator/history',
         icon: <IconHistory />,
+      },
+      {
+        key: 'oro-bandeja',
+        title: 'Bandeja ORO',
+        path: '/oro',
+        icon: <IconClipboardCheck />,
       },
     ],
   },
