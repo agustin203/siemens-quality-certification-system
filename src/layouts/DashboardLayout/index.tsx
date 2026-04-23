@@ -5,6 +5,7 @@ import {
   IconCertificate,
   IconClipboardList,
   IconHome,
+  IconListCheck,
 } from '@material-hu/icons/tabler';
 import Stack from '@material-hu/mui/Stack';
 
@@ -31,6 +32,12 @@ const SECTIONS: NavSectionProps[] = [
         title: 'Procesos',
         path: '/processes',
         icon: <IconClipboardList />,
+      },
+      {
+        key: 'operator-processes',
+        title: 'Mis procesos',
+        path: '/operator/processes',
+        icon: <IconListCheck />,
       },
       {
         key: 'operator',

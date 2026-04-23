@@ -1,7 +1,9 @@
 import { useNavigate } from 'react-router-dom';
+
 import { IconClipboardList } from '@material-hu/icons/tabler';
 import Stack from '@material-hu/mui/Stack';
 import Typography from '@material-hu/mui/Typography';
+
 import Button from '@material-hu/components/design-system/Buttons/Button';
 import Table from '@material-hu/components/design-system/Table';
 import TableBody from '@material-hu/components/design-system/Table/components/TableBody';
@@ -10,15 +12,22 @@ import TableContainer from '@material-hu/components/design-system/Table/componen
 import TableHead from '@material-hu/components/design-system/Table/components/TableHead';
 import TableRow from '@material-hu/components/design-system/Table/components/TableRow';
 import Title from '@material-hu/components/design-system/Title';
+
 import { DashboardLayout } from '../../../layouts/DashboardLayout';
-import { OPERATOR_OPERATIONS_BY_PROCESS, PROCESS_FILTER_OPTIONS } from '../constants';
+import {
+  OPERATOR_OPERATIONS_BY_PROCESS,
+  PROCESS_FILTER_OPTIONS,
+} from '../constants';
 
 const OperatorProcesses = () => {
   const navigate = useNavigate();
   return (
     <DashboardLayout>
       <Stack sx={{ gap: 6 }}>
-        <Title title="Mis procesos" description="Seleccioná un proceso para ver tus operaciones" />
+        <Title
+          title="Mis procesos"
+          description="Seleccioná un proceso para ver tus operaciones"
+        />
         <TableContainer>
           <Table>
             <TableHead>
@@ -37,7 +46,10 @@ const OperatorProcesses = () => {
                       <Typography variant="body2">{process.label}</Typography>
                     </TableCell>
                     <TableCell>
-                      <Typography variant="body2" sx={{ color: 'new.text.neutral.subtle' }}>
+                      <Typography
+                        variant="body2"
+                        sx={{ color: 'new.text.neutral.subtle' }}
+                      >
                         {ops.length} operaciones
                       </Typography>
                     </TableCell>
