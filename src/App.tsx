@@ -10,7 +10,7 @@ import { DrawerLayerProvider } from '@material-hu/components/layers/Drawers';
 import { MenuLayerProvider } from '@material-hu/components/layers/Menus';
 
 import { HomePage } from './pages/Home';
-import { AuthProvider, type UserRole, useAuth } from './providers/AuthContext';
+import { AuthProvider, useAuth } from './providers/AuthContext';
 import './i18n';
 
 const theme = createHuGoTheme();
@@ -36,26 +36,13 @@ const AdminDashboard = lazy(() => import('./pages/Admin/Dashboard'));
 const SupervisorDashboard = lazy(() => import('./pages/Supervisor/Dashboard'));
 const EmployeeDrill = lazy(() => import('./pages/Supervisor/EmployeeDrill'));
 
-function ProtectedRoute({
-  children,
-  roles,
-}: {
-  children: ReactNode;
-  roles?: UserRole[];
-}) {
+function ProtectedRoute({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
   if (loading) return null;
   if (!user)
     return (
       <Navigate
         to="/login"
-        replace
-      />
-    );
-  if (roles && !roles.includes(user.role))
-    return (
-      <Navigate
-        to="/"
         replace
       />
     );
@@ -104,7 +91,7 @@ const App = () => {
                       <Route
                         path="/operator"
                         element={
-                          <ProtectedRoute roles={['operator']}>
+                          <ProtectedRoute>
                             <OperatorHome />
                           </ProtectedRoute>
                         }
@@ -112,7 +99,7 @@ const App = () => {
                       <Route
                         path="/operator/certifications/:id"
                         element={
-                          <ProtectedRoute roles={['operator']}>
+                          <ProtectedRoute>
                             <CertificationDetail />
                           </ProtectedRoute>
                         }
@@ -120,7 +107,7 @@ const App = () => {
                       <Route
                         path="/operator/processes"
                         element={
-                          <ProtectedRoute roles={['operator']}>
+                          <ProtectedRoute>
                             <OperatorProcesses />
                           </ProtectedRoute>
                         }
@@ -128,7 +115,7 @@ const App = () => {
                       <Route
                         path="/operator/processes/:processId"
                         element={
-                          <ProtectedRoute roles={['operator']}>
+                          <ProtectedRoute>
                             <OperatorProcessDetail />
                           </ProtectedRoute>
                         }
@@ -136,7 +123,7 @@ const App = () => {
                       <Route
                         path="/operator/history"
                         element={
-                          <ProtectedRoute roles={['operator']}>
+                          <ProtectedRoute>
                             <OperatorHistory />
                           </ProtectedRoute>
                         }
@@ -144,7 +131,7 @@ const App = () => {
                       <Route
                         path="/oro"
                         element={
-                          <ProtectedRoute roles={['oro']}>
+                          <ProtectedRoute>
                             <OroBandeja />
                           </ProtectedRoute>
                         }
@@ -152,7 +139,7 @@ const App = () => {
                       <Route
                         path="/oro/evaluation/:requestId"
                         element={
-                          <ProtectedRoute roles={['oro']}>
+                          <ProtectedRoute>
                             <OroEvaluation />
                           </ProtectedRoute>
                         }
@@ -160,7 +147,7 @@ const App = () => {
                       <Route
                         path="/oro/signature/:requestId"
                         element={
-                          <ProtectedRoute roles={['oro']}>
+                          <ProtectedRoute>
                             <OroSignature />
                           </ProtectedRoute>
                         }
@@ -168,7 +155,7 @@ const App = () => {
                       <Route
                         path="/oro/history"
                         element={
-                          <ProtectedRoute roles={['oro']}>
+                          <ProtectedRoute>
                             <OroHistory />
                           </ProtectedRoute>
                         }
@@ -176,7 +163,7 @@ const App = () => {
                       <Route
                         path="/admin"
                         element={
-                          <ProtectedRoute roles={['admin']}>
+                          <ProtectedRoute>
                             <AdminDashboard />
                           </ProtectedRoute>
                         }
@@ -184,7 +171,7 @@ const App = () => {
                       <Route
                         path="/supervisor"
                         element={
-                          <ProtectedRoute roles={['supervisor']}>
+                          <ProtectedRoute>
                             <SupervisorDashboard />
                           </ProtectedRoute>
                         }
@@ -192,7 +179,7 @@ const App = () => {
                       <Route
                         path="/supervisor/employee/:operatorId"
                         element={
-                          <ProtectedRoute roles={['supervisor']}>
+                          <ProtectedRoute>
                             <EmployeeDrill />
                           </ProtectedRoute>
                         }
