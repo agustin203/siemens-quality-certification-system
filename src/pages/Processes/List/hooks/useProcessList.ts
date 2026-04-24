@@ -1,11 +1,19 @@
 import { useEffect, useState } from 'react';
 
-import { MOCK_PROCESSES } from '../../constants';
+import {
+  useCreateProcess,
+  useProcessList as useProcessListQuery,
+  useSetProcessStatus,
+  useUpdateProcess,
+} from '../../../../services/processes.hooks';
 import { type CertificationProcess, type ProcessStatus } from '../../types';
 
 export const useProcessList = () => {
-  const [processes, setProcesses] =
-    useState<CertificationProcess[]>(MOCK_PROCESSES);
+  const { data: processes = [], isLoading } = useProcessListQuery();
+  const createMutation = useCreateProcess();
+  const updateMutation = useUpdateProcess();
+  const setStatusMutation = useSetProcessStatus();
+
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<ProcessStatus | undefined>(
     undefined,
@@ -19,12 +27,10 @@ export const useProcessList = () => {
     return matchesSearch && matchesStatus;
   });
 
-  const totalPages = Math.ceil(filteredProcesses.length / limit);
+  const totalPages = Math.max(1, Math.ceil(filteredProcesses.length / limit));
 
   useEffect(() => {
-    if (page > totalPages && totalPages > 0) {
-      setPage(1);
-    }
+    if (page > totalPages && totalPages > 0) setPage(1);
   }, [page, totalPages]);
 
   const paginatedProcesses = filteredProcesses.slice(
@@ -33,15 +39,11 @@ export const useProcessList = () => {
   );
 
   const handleArchive = (id: string) => {
-    setProcesses(prev =>
-      prev.map(p => (p.id === id ? { ...p, status: 'archived' } : p)),
-    );
+    setStatusMutation.mutate({ id, status: 'archived' });
   };
 
   const handlePublish = (id: string) => {
-    setProcesses(prev =>
-      prev.map(p => (p.id === id ? { ...p, status: 'published' } : p)),
-    );
+    setStatusMutation.mutate({ id, status: 'published' });
   };
 
   const handleCreate = (
@@ -50,14 +52,7 @@ export const useProcessList = () => {
       'nombre' | 'modelo' | 'familia' | 'linea' | 'turno'
     >,
   ) => {
-    const newProcess: CertificationProcess = {
-      ...data,
-      id: `proc-${Date.now()}`,
-      version: 1,
-      status: 'draft',
-      createdAt: new Date().toISOString(),
-    };
-    setProcesses(prev => [newProcess, ...prev]);
+    createMutation.mutate(data);
   };
 
   const handleEdit = (
@@ -67,10 +62,11 @@ export const useProcessList = () => {
       'nombre' | 'modelo' | 'familia' | 'linea' | 'turno'
     >,
   ) => {
-    setProcesses(prev => prev.map(p => (p.id === id ? { ...p, ...data } : p)));
+    updateMutation.mutate({ id, data });
   };
 
   return {
+    isLoading,
     processes,
     filteredProcesses,
     paginatedProcesses,

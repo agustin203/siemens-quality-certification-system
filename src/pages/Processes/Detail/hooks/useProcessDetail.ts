@@ -1,42 +1,44 @@
-import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 
-import { MOCK_OPERATIONS, MOCK_PROCESSES } from '../../constants';
+import {
+  useCreateOperation,
+  useDeleteOperation,
+  useProcessList as useProcessListQuery,
+  useProcessOperations,
+  useUpdateOperation,
+} from '../../../../services/processes.hooks';
 import { type CertificationOperation } from '../../types';
 
 export const useProcessDetail = () => {
   const { id } = useParams<{ id: string }>();
 
-  const process = MOCK_PROCESSES.find(p => p.id === id) ?? null;
+  const { data: processes = [] } = useProcessListQuery();
+  const process = processes.find(p => p.id === id) ?? null;
 
-  const [operations, setOperations] = useState<CertificationOperation[]>(
-    MOCK_OPERATIONS.filter(op => op.process_id === id),
-  );
+  const { data: operations = [] } = useProcessOperations(id ?? '');
+
+  const createMutation = useCreateOperation();
+  const updateMutation = useUpdateOperation();
+  const deleteMutation = useDeleteOperation();
 
   const handleCreateOperation = (
     data: Pick<CertificationOperation, 'nombre' | 'tiempo_estandar_seg'>,
   ) => {
-    const newOp: CertificationOperation = {
-      id: `op-${Date.now()}`,
-      process_id: id ?? '',
-      orden: operations.length + 1,
-      nombre: data.nombre,
-      tiempo_estandar_seg: data.tiempo_estandar_seg,
-    };
-    setOperations(prev => [...prev, newOp]);
+    if (!id) return;
+    createMutation.mutate({ processId: id, data });
   };
 
   const handleEditOperation = (
     operationId: string,
     data: Pick<CertificationOperation, 'nombre' | 'tiempo_estandar_seg'>,
   ) => {
-    setOperations(prev =>
-      prev.map(op => (op.id === operationId ? { ...op, ...data } : op)),
-    );
+    if (!id) return;
+    updateMutation.mutate({ id: operationId, processId: id, data });
   };
 
   const handleDeleteOperation = (operationId: string) => {
-    setOperations(prev => prev.filter(op => op.id !== operationId));
+    if (!id) return;
+    deleteMutation.mutate({ id: operationId, processId: id });
   };
 
   return {

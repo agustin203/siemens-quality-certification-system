@@ -39,10 +39,72 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (path === 'processes' && req.method === 'GET') {
       const { data, error } = await supabase
         .from('processes')
-        .select('id, name')
-        .order('name');
+        .select('id, name, modelo, familia, linea, turno, version, status, created_at')
+        .order('created_at', { ascending: false });
       if (error) throw error;
-      return res.status(200).json({ data });
+      const shaped = (data ?? []).map(shapeProcess);
+      return res.status(200).json({ data: shaped });
+    }
+
+    // ─────────────────────────────────────────────
+    // POST /api/supabase/processes
+    // ─────────────────────────────────────────────
+    if (path === 'processes' && req.method === 'POST') {
+      const { nombre, modelo, familia, linea, turno } = req.body as {
+        nombre?: string; modelo?: string; familia?: string;
+        linea?: string; turno?: string;
+      };
+      if (!nombre) return res.status(400).json({ error: 'nombre required' });
+      const { data, error } = await supabase
+        .from('processes')
+        .insert({ name: nombre, modelo: modelo ?? '', familia: familia ?? '',
+                  linea: linea ?? '', turno: turno ?? '', version: 1, status: 'draft' })
+        .select('id, name, modelo, familia, linea, turno, version, status, created_at')
+        .single();
+      if (error) throw error;
+      return res.status(201).json({ data: shapeProcess(data) });
+    }
+
+    // ─────────────────────────────────────────────
+    // PATCH /api/supabase/processes/:id
+    // Edit process metadata
+    // ─────────────────────────────────────────────
+    if (parts[0] === 'processes' && parts.length === 2 && req.method === 'PATCH') {
+      const id = parts[1];
+      const { nombre, modelo, familia, linea, turno } = req.body as {
+        nombre?: string; modelo?: string; familia?: string;
+        linea?: string; turno?: string;
+      };
+      const updates: Record<string, unknown> = {};
+      if (nombre !== undefined) updates.name = nombre;
+      if (modelo !== undefined) updates.modelo = modelo;
+      if (familia !== undefined) updates.familia = familia;
+      if (linea !== undefined) updates.linea = linea;
+      if (turno !== undefined) updates.turno = turno;
+      const { data, error } = await supabase
+        .from('processes')
+        .update(updates)
+        .eq('id', id)
+        .select('id, name, modelo, familia, linea, turno, version, status, created_at')
+        .single();
+      if (error) throw error;
+      return res.status(200).json({ data: shapeProcess(data) });
+    }
+
+    // ─────────────────────────────────────────────
+    // PATCH /api/supabase/processes/:id/status
+    // Archive or publish
+    // ─────────────────────────────────────────────
+    if (parts[0] === 'processes' && parts[2] === 'status' && req.method === 'PATCH') {
+      const id = parts[1];
+      const { status } = req.body as { status?: string };
+      if (!status) return res.status(400).json({ error: 'status required' });
+      const { error } = await supabase
+        .from('processes')
+        .update({ status })
+        .eq('id', id);
+      if (error) throw error;
+      return res.status(200).json({ ok: true });
     }
 
     // ─────────────────────────────────────────────
@@ -50,11 +112,75 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // ─────────────────────────────────────────────
     if (path === 'operations' && req.method === 'GET') {
       const { processId } = req.query as { processId?: string };
-      let q = supabase.from('operations').select('id, process_id, name, tiempo_estandar_seg').order('name');
+      let q = supabase
+        .from('operations')
+        .select('id, process_id, name, tiempo_estandar_seg, orden')
+        .order('orden');
       if (processId) q = q.eq('process_id', processId);
       const { data, error } = await q;
       if (error) throw error;
-      return res.status(200).json({ data });
+      const shaped = (data ?? []).map(shapeOperation);
+      return res.status(200).json({ data: shaped });
+    }
+
+    // ─────────────────────────────────────────────
+    // POST /api/supabase/operations
+    // ─────────────────────────────────────────────
+    if (path === 'operations' && req.method === 'POST') {
+      const { processId, nombre, tiempoEstandarSeg } = req.body as {
+        processId?: string; nombre?: string; tiempoEstandarSeg?: number;
+      };
+      if (!processId || !nombre || tiempoEstandarSeg == null) {
+        return res.status(400).json({ error: 'processId, nombre, tiempoEstandarSeg required' });
+      }
+      // Get next orden
+      const { data: existing } = await supabase
+        .from('operations')
+        .select('orden')
+        .eq('process_id', processId)
+        .order('orden', { ascending: false })
+        .limit(1);
+      const nextOrden = ((existing?.[0]?.orden) ?? 0) + 1;
+
+      const { data, error } = await supabase
+        .from('operations')
+        .insert({ process_id: processId, name: nombre,
+                  tiempo_estandar_seg: tiempoEstandarSeg, orden: nextOrden })
+        .select('id, process_id, name, tiempo_estandar_seg, orden')
+        .single();
+      if (error) throw error;
+      return res.status(201).json({ data: shapeOperation(data) });
+    }
+
+    // ─────────────────────────────────────────────
+    // PATCH /api/supabase/operations/:id
+    // ─────────────────────────────────────────────
+    if (parts[0] === 'operations' && parts.length === 2 && req.method === 'PATCH') {
+      const id = parts[1];
+      const { nombre, tiempoEstandarSeg } = req.body as {
+        nombre?: string; tiempoEstandarSeg?: number;
+      };
+      const updates: Record<string, unknown> = {};
+      if (nombre !== undefined) updates.name = nombre;
+      if (tiempoEstandarSeg !== undefined) updates.tiempo_estandar_seg = tiempoEstandarSeg;
+      const { data, error } = await supabase
+        .from('operations')
+        .update(updates)
+        .eq('id', id)
+        .select('id, process_id, name, tiempo_estandar_seg, orden')
+        .single();
+      if (error) throw error;
+      return res.status(200).json({ data: shapeOperation(data) });
+    }
+
+    // ─────────────────────────────────────────────
+    // DELETE /api/supabase/operations/:id
+    // ─────────────────────────────────────────────
+    if (parts[0] === 'operations' && parts.length === 2 && req.method === 'DELETE') {
+      const id = parts[1];
+      const { error } = await supabase.from('operations').delete().eq('id', id);
+      if (error) throw error;
+      return res.status(200).json({ ok: true });
     }
 
     // ─────────────────────────────────────────────
@@ -487,6 +613,30 @@ async function getProfile(supabase: any, email: string) {
     .eq('email', email)
     .single();
   return data ?? null;
+}
+
+function shapeProcess(p: any) {
+  return {
+    id: p.id,
+    nombre: p.name,
+    modelo: p.modelo ?? '',
+    familia: p.familia ?? '',
+    linea: p.linea ?? '',
+    turno: p.turno ?? '',
+    version: p.version ?? 1,
+    status: p.status ?? 'draft',
+    createdAt: p.created_at,
+  };
+}
+
+function shapeOperation(op: any) {
+  return {
+    id: op.id,
+    process_id: op.process_id,
+    nombre: op.name,
+    tiempo_estandar_seg: Number(op.tiempo_estandar_seg),
+    orden: op.orden ?? 1,
+  };
 }
 
 function isCooldownActive(cooldownUntil: string | null): boolean {
