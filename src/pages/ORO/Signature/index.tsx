@@ -12,6 +12,7 @@ import Pills from '@material-hu/components/design-system/Pills';
 import { useDialogLayer } from '@material-hu/components/layers/Dialogs';
 
 import { DashboardLayout } from '../../../layouts/DashboardLayout';
+import { useSubmitAttempt } from '../../../services/certifications.hooks';
 import { type PendingRequest } from '../types';
 
 type SignatureState = {
@@ -28,6 +29,7 @@ const OroSignature = () => {
   const state = location.state as SignatureState | undefined;
   const sigRef = useRef<SignatureCanvas>(null);
   const [isEmpty, setIsEmpty] = useState(true);
+  const submitAttempt = useSubmitAttempt();
 
   if (!state) {
     return (
@@ -63,7 +65,16 @@ const OroSignature = () => {
         children: 'Confirmar y cerrar',
         onClick: () => {
           closeDialog();
-          navigate('/oro');
+          submitAttempt.mutate(
+            {
+              requestId: request.id,
+              tiempoRegistradoSeg: parseFloat(average.toFixed(2)),
+              result: passed ? 'passed' : 'failed',
+            },
+            {
+              onSettled: () => navigate('/oro'),
+            },
+          );
         },
       },
       secondaryButtonProps: {
@@ -180,7 +191,7 @@ const OroSignature = () => {
           </Button>
           <Button
             variant="primary"
-            disabled={isEmpty}
+            disabled={isEmpty || submitAttempt.isPending}
             onClick={handleConfirm}
           >
             Confirmar evaluación

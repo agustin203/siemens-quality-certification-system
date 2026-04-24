@@ -6,6 +6,8 @@ import {
   useState,
 } from 'react';
 
+export type UserRole = 'operator' | 'oro' | 'admin' | 'supervisor';
+
 export type User = {
   id: number;
   employeeInternalId: string;
@@ -14,6 +16,8 @@ export type User = {
   email: string;
   language?: string;
   instanceId: number;
+  role: UserRole;
+  supabaseProfileId?: string;
 };
 
 type AuthState = {

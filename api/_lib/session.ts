@@ -4,6 +4,8 @@ import { SignJWT, jwtVerify } from 'jose';
 export const SESSION_COOKIE = 'hu_session';
 const SESSION_TTL_SECONDS = 60 * 60 * 8;
 
+export type UserRole = 'operator' | 'oro' | 'admin' | 'supervisor';
+
 export type SessionUser = {
   id: number;
   employeeInternalId: string;
@@ -12,6 +14,8 @@ export type SessionUser = {
   email: string;
   language?: string;
   instanceId: number;
+  role: UserRole;
+  supabaseProfileId?: string;
 };
 
 function getSecret() {

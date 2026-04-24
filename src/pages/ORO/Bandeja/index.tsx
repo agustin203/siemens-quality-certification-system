@@ -16,7 +16,7 @@ import TableRow from '@material-hu/components/design-system/Table/components/Tab
 import Title from '@material-hu/components/design-system/Title';
 
 import { DashboardLayout } from '../../../layouts/DashboardLayout';
-import { MOCK_PENDING_REQUESTS } from '../constants';
+import { useOroPending } from '../../../services/certifications.hooks';
 import { type PendingRequest } from '../types';
 
 const formatDate = (dateStr: string) =>
@@ -28,7 +28,7 @@ const formatDate = (dateStr: string) =>
 
 const OroBandeja = () => {
   const navigate = useNavigate();
-  const requests = MOCK_PENDING_REQUESTS;
+  const { data: requests = [], isLoading } = useOroPending();
 
   const handleStart = (request: PendingRequest) => {
     navigate(`/oro/evaluation/${request.id}`, { state: request });
@@ -42,7 +42,7 @@ const OroBandeja = () => {
           description="Solicitudes pendientes de certificación"
         />
 
-        {requests.length === 0 ? (
+        {isLoading ? null : requests.length === 0 ? (
           <StateCard
             Icon={IconClipboardCheck}
             title="Sin solicitudes pendientes"

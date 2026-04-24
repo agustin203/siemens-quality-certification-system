@@ -23,65 +23,84 @@ import {
 import { type NavSectionProps } from '@material-hu/components/design-system/Sidebar/types';
 
 import humandLogo from '../../assets/humand.svg';
-import { useAuth } from '../../providers/AuthContext';
+import { type UserRole, useAuth } from '../../providers/AuthContext';
 
-const SECTIONS: NavSectionProps[] = [
+type NavItem = NonNullable<NavSectionProps['items']>[number] & {
+  roles?: UserRole[];
+};
+
+const ALL_ITEMS: NavItem[] = [
   {
-    key: 'main',
-    title: 'Main',
-    items: [
-      { key: 'home', title: 'Home', path: '/', icon: <IconHome /> },
-      {
-        key: 'processes',
-        title: 'Procesos',
-        path: '/processes',
-        icon: <IconClipboardList />,
-      },
-      {
-        key: 'operator-processes',
-        title: 'Mis procesos',
-        path: '/operator/processes',
-        icon: <IconListCheck />,
-      },
-      {
-        key: 'operator',
-        title: 'Mis certificaciones',
-        path: '/operator',
-        icon: <IconCertificate />,
-      },
-      {
-        key: 'operator-history',
-        title: 'Mi historial',
-        path: '/operator/history',
-        icon: <IconHistory />,
-      },
-      {
-        key: 'oro-bandeja',
-        title: 'Bandeja ORO',
-        path: '/oro',
-        icon: <IconClipboardCheck />,
-      },
-      {
-        key: 'oro-history',
-        title: 'Historial ORO',
-        path: '/oro/history',
-        icon: <IconHistory />,
-      },
-      {
-        key: 'admin-dashboard',
-        title: 'Dashboard Admin',
-        path: '/admin',
-        icon: <IconChartBar />,
-      },
-      {
-        key: 'supervisor-dashboard',
-        title: 'Dashboard Supervisor',
-        path: '/supervisor',
-        icon: <IconChartPie />,
-      },
-    ],
+    key: 'home',
+    title: 'Home',
+    path: '/',
+    icon: <IconHome />,
+  },
+  {
+    key: 'processes',
+    title: 'Procesos',
+    path: '/processes',
+    icon: <IconClipboardList />,
+  },
+  {
+    key: 'operator-processes',
+    title: 'Mis procesos',
+    path: '/operator/processes',
+    icon: <IconListCheck />,
+    roles: ['operator'],
+  },
+  {
+    key: 'operator',
+    title: 'Mis certificaciones',
+    path: '/operator',
+    icon: <IconCertificate />,
+    roles: ['operator'],
+  },
+  {
+    key: 'operator-history',
+    title: 'Mi historial',
+    path: '/operator/history',
+    icon: <IconHistory />,
+    roles: ['operator'],
+  },
+  {
+    key: 'oro-bandeja',
+    title: 'Bandeja ORO',
+    path: '/oro',
+    icon: <IconClipboardCheck />,
+    roles: ['oro'],
+  },
+  {
+    key: 'oro-history',
+    title: 'Historial ORO',
+    path: '/oro/history',
+    icon: <IconHistory />,
+    roles: ['oro'],
+  },
+  {
+    key: 'admin-dashboard',
+    title: 'Dashboard Admin',
+    path: '/admin',
+    icon: <IconChartBar />,
+    roles: ['admin'],
+  },
+  {
+    key: 'supervisor-dashboard',
+    title: 'Dashboard Supervisor',
+    path: '/supervisor',
+    icon: <IconChartPie />,
+    roles: ['supervisor'],
   },
 ];
+
+function buildSections(role: UserRole): NavSectionProps[] {
+  const filtered = ALL_ITEMS.filter(
+    item => !item.roles || item.roles.includes(role),
+  );
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const items = filtered.map(({ roles: _roles, ...rest }) => rest);
+  return [{ key: 'main', title: 'Main', items }];
+}
 
 type DashboardLayoutProps = {
   children: ReactNode;
@@ -90,9 +109,15 @@ type DashboardLayoutProps = {
 export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const { pathname } = useLocation();
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
 
+  const role: UserRole = user?.role ?? 'operator';
+  const sections = buildSections(role);
   const sidebarWidth = isCollapsed ? SIDEBAR_COLLAPSED_WIDTH : SIDEBAR_WIDTH;
+
+  const avatarText = user
+    ? `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`.toUpperCase()
+    : 'U';
 
   return (
     <Stack sx={{ minHeight: '100vh' }}>
@@ -103,7 +128,7 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         hideNotificationsButton
         hideSupportButton
         isAdmin={false}
-        avatarProps={{ text: 'U' }}
+        avatarProps={{ text: avatarText }}
         avatarPopoverContent={
           <Button
             onClick={() => logout()}
@@ -122,7 +147,7 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         <Sidebar
           isCollapsed={isCollapsed}
           pathname={pathname}
-          sections={SECTIONS}
+          sections={sections}
           openMenu={() => setIsCollapsed(false)}
           sx={{
             position: 'sticky',

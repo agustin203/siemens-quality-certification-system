@@ -29,38 +29,101 @@ export const PERIOD_FILTER_OPTIONS = [
   { value: '365d', label: 'Último año' },
 ];
 
+// Process UUIDs — must match the seed in Supabase
+export const PROCESS_IDS = {
+  Q120_1POLO: '00000000-0000-0000-0000-000000000001',
+  Q120L2_1POLO: '00000000-0000-0000-0000-000000000002',
+  Q150_4POLOS: '00000000-0000-0000-0000-000000000006',
+  Q180_2POLOS_L2: '00000000-0000-0000-0000-000000000009',
+};
+
 export const PROCESS_FILTER_OPTIONS = [
-  { value: '1', label: 'Q120 — 1 Polo' },
-  { value: '2', label: 'Q120 L2 — 1 Polo' },
-  { value: '6', label: 'Q150 — 4 Polos' },
-  { value: '9', label: 'Q180 — 2 Polos L2' },
+  { value: PROCESS_IDS.Q120_1POLO, label: 'Q120 — 1 Polo' },
+  { value: PROCESS_IDS.Q120L2_1POLO, label: 'Q120 L2 — 1 Polo' },
+  { value: PROCESS_IDS.Q150_4POLOS, label: 'Q150 — 4 Polos' },
+  { value: PROCESS_IDS.Q180_2POLOS_L2, label: 'Q180 — 2 Polos L2' },
 ];
+
+// Operation UUIDs — must match the seed in Supabase
+export const OP_IDS = {
+  // Q120 — 1 Polo
+  insertar_contacto_inferior: '00000000-0000-0000-0000-000000000101',
+  soldar_contacto_inferior: '00000000-0000-0000-0000-000000000102',
+  insertar_resorte_contacto: '00000000-0000-0000-0000-000000000103',
+  colocar_cubierta_superior: '00000000-0000-0000-0000-000000000104',
+  verificar_continuidad_electrica: '00000000-0000-0000-0000-000000000105',
+  // Q120 L2 — 1 Polo
+  insertar_contacto_inferior_l2_proc2: '00000000-0000-0000-0000-000000000106',
+  soldar_contacto_inferior_l2_proc2: '00000000-0000-0000-0000-000000000107',
+  colocar_cubierta_superior_l2: '00000000-0000-0000-0000-000000000108',
+  // Q150 — 4 Polos
+  montaje_arco_electrico: '00000000-0000-0000-0000-000000000111',
+  insertar_bimetalico: '00000000-0000-0000-0000-000000000112',
+  calibrar_disparador: '00000000-0000-0000-0000-000000000113',
+  // Q180 — 2 Polos L2
+  insertar_contacto_inferior_l2_proc9: '00000000-0000-0000-0000-000000000114',
+  soldar_contacto_inferior_l2_proc9: '00000000-0000-0000-0000-000000000115',
+  ensamblar_tapa_lateral: '00000000-0000-0000-0000-000000000116',
+};
 
 export const OPERATOR_OPERATIONS_BY_PROCESS: Record<
   string,
   { value: string; label: string }[]
 > = {
-  '1': [
-    { value: 'op-1', label: 'Insertar contacto inferior' },
-    { value: 'op-2', label: 'Soldar contacto inferior' },
-    { value: 'op-3', label: 'Insertar resorte de contacto' },
-    { value: 'op-4', label: 'Colocar cubierta superior' },
-    { value: 'op-5', label: 'Verificar continuidad eléctrica' },
+  [PROCESS_IDS.Q120_1POLO]: [
+    {
+      value: OP_IDS.insertar_contacto_inferior,
+      label: 'Insertar contacto inferior',
+    },
+    {
+      value: OP_IDS.soldar_contacto_inferior,
+      label: 'Soldar contacto inferior',
+    },
+    {
+      value: OP_IDS.insertar_resorte_contacto,
+      label: 'Insertar resorte de contacto',
+    },
+    {
+      value: OP_IDS.colocar_cubierta_superior,
+      label: 'Colocar cubierta superior',
+    },
+    {
+      value: OP_IDS.verificar_continuidad_electrica,
+      label: 'Verificar continuidad eléctrica',
+    },
   ],
-  '2': [
-    { value: 'op-6', label: 'Insertar contacto inferior L2' },
-    { value: 'op-7', label: 'Soldar contacto inferior L2' },
-    { value: 'op-8', label: 'Colocar cubierta superior L2' },
+  [PROCESS_IDS.Q120L2_1POLO]: [
+    {
+      value: OP_IDS.insertar_contacto_inferior_l2_proc2,
+      label: 'Insertar contacto inferior L2',
+    },
+    {
+      value: OP_IDS.soldar_contacto_inferior_l2_proc2,
+      label: 'Soldar contacto inferior L2',
+    },
+    {
+      value: OP_IDS.colocar_cubierta_superior_l2,
+      label: 'Colocar cubierta superior L2',
+    },
   ],
-  '6': [
-    { value: 'op-11', label: 'Montaje de arco eléctrico' },
-    { value: 'op-12', label: 'Insertar bimetálico' },
-    { value: 'op-13', label: 'Calibrar disparador térmico' },
+  [PROCESS_IDS.Q150_4POLOS]: [
+    {
+      value: OP_IDS.montaje_arco_electrico,
+      label: 'Montaje de arco eléctrico',
+    },
+    { value: OP_IDS.insertar_bimetalico, label: 'Insertar bimetálico' },
+    { value: OP_IDS.calibrar_disparador, label: 'Calibrar disparador térmico' },
   ],
-  '9': [
-    { value: 'op-14', label: 'Insertar contacto inferior L2' },
-    { value: 'op-15', label: 'Soldar contacto inferior L2' },
-    { value: 'op-16', label: 'Ensamblar tapa lateral' },
+  [PROCESS_IDS.Q180_2POLOS_L2]: [
+    {
+      value: OP_IDS.insertar_contacto_inferior_l2_proc9,
+      label: 'Insertar contacto inferior L2',
+    },
+    {
+      value: OP_IDS.soldar_contacto_inferior_l2_proc9,
+      label: 'Soldar contacto inferior L2',
+    },
+    { value: OP_IDS.ensamblar_tapa_lateral, label: 'Ensamblar tapa lateral' },
   ],
 };
 

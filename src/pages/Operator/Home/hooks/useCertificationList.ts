@@ -1,7 +1,11 @@
 import { useEffect, useState } from 'react';
 
 import {
-  MOCK_CERTIFICATIONS,
+  useCancelCertification,
+  useCreateCertification,
+  useMyCertifications,
+} from '../../../../services/certifications.hooks';
+import {
   OPERATOR_OPERATIONS_BY_PROCESS,
   PROCESS_FILTER_OPTIONS,
 } from '../../constants';
@@ -10,7 +14,7 @@ import {
   type CertificationStatus,
 } from '../../types';
 
-type NewCertificationInput = {
+export type NewCertificationInput = {
   processId: string;
   operationId: string;
 };
@@ -18,8 +22,10 @@ type NewCertificationInput = {
 type PeriodFilter = '30d' | '90d' | '365d';
 
 export const useCertificationList = () => {
-  const [certifications, setCertifications] =
-    useState<CertificationRequest[]>(MOCK_CERTIFICATIONS);
+  const { data: certifications = [], isLoading } = useMyCertifications();
+  const createMutation = useCreateCertification();
+  const cancelMutation = useCancelCertification();
+
   const [statusFilter, setStatusFilter] = useState<
     CertificationStatus | undefined
   >(undefined);
@@ -46,7 +52,10 @@ export const useCertificationList = () => {
     return matchesStatus && matchesProcess && matchesPeriod;
   });
 
-  const totalPages = Math.ceil(filteredCertifications.length / limit);
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredCertifications.length / limit),
+  );
 
   useEffect(() => {
     if (page > totalPages && totalPages > 0) {
@@ -60,34 +69,15 @@ export const useCertificationList = () => {
   );
 
   const handleCancel = (id: string) => {
-    setCertifications(prev =>
-      prev.map(c => (c.id === id ? { ...c, status: 'cancelled' as const } : c)),
-    );
+    cancelMutation.mutate(id);
   };
 
   const handleCreate = (data: NewCertificationInput) => {
-    const processOption = PROCESS_FILTER_OPTIONS.find(
-      p => p.value === data.processId,
-    );
-    const operations = OPERATOR_OPERATIONS_BY_PROCESS[data.processId] ?? [];
-    const operationOption = operations.find(
-      op => op.value === data.operationId,
-    );
-
-    const newCert: CertificationRequest = {
-      id: `cert-${Date.now()}`,
-      processId: data.processId,
-      processName: processOption?.label ?? '',
-      operationId: data.operationId,
-      operationName: operationOption?.label ?? '',
-      requestDate: new Date().toISOString(),
-      status: 'in_progress',
-    };
-
-    setCertifications(prev => [newCert, ...prev]);
+    createMutation.mutate(data.operationId);
   };
 
   return {
+    isLoading,
     filteredCertifications,
     paginatedCertifications,
     statusFilter,
@@ -101,5 +91,7 @@ export const useCertificationList = () => {
     totalPages,
     handleCancel,
     handleCreate,
+    PROCESS_FILTER_OPTIONS,
+    OPERATOR_OPERATIONS_BY_PROCESS,
   };
 };

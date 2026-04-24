@@ -22,7 +22,8 @@ import TableRow from '@material-hu/components/design-system/Table/components/Tab
 import Title from '@material-hu/components/design-system/Title';
 
 import { DashboardLayout } from '../../../layouts/DashboardLayout';
-import { CERTIFICATION_STATUS_CONFIG, MOCK_ATTEMPTS } from '../constants';
+import { useCertificationAttempts } from '../../../services/certifications.hooks';
+import { CERTIFICATION_STATUS_CONFIG } from '../constants';
 import { type CertificationRequest } from '../types';
 
 const formatDate = (dateStr: string) =>
@@ -89,8 +90,8 @@ const CertificationDetail = () => {
     );
   }
 
+  const { data: attempts = [] } = useCertificationAttempts(cert.id);
   const statusConfig = CERTIFICATION_STATUS_CONFIG[cert.status];
-  const attempts = MOCK_ATTEMPTS.filter(a => a.requestId === cert.id);
   const lastAttempt =
     attempts.length > 0 ? attempts[attempts.length - 1] : null;
 

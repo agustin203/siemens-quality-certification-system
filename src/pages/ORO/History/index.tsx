@@ -11,7 +11,7 @@ import TableRow from '@material-hu/components/design-system/Table/components/Tab
 import Title from '@material-hu/components/design-system/Title';
 
 import { DashboardLayout } from '../../../layouts/DashboardLayout';
-import { MOCK_ORO_EVALUATIONS } from '../constants';
+import { useOroHistory } from '../../../services/certifications.hooks';
 
 const formatDate = (dateStr: string) =>
   new Date(dateStr).toLocaleDateString('es-AR', {
@@ -21,7 +21,8 @@ const formatDate = (dateStr: string) =>
   });
 
 const OroHistory = () => {
-  const evaluations = [...MOCK_ORO_EVALUATIONS].sort(
+  const { data: rawEvaluations = [] } = useOroHistory();
+  const evaluations = [...rawEvaluations].sort(
     (a, b) =>
       new Date(b.evaluatedAt).getTime() - new Date(a.evaluatedAt).getTime(),
   );
