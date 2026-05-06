@@ -43,7 +43,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const supabaseUrl = process.env.SUPABASE_URL;
   const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-  if (supabaseUrl && supabaseKey && data.email) {
+  // Use email from Janus if available, otherwise fall back to employeeInternalId
+  const profileEmail = data.email || employeeInternalId;
+
+  if (supabaseUrl && supabaseKey && profileEmail) {
     try {
       const supabase = createClient(supabaseUrl, supabaseKey, {
         auth: { persistSession: false },
@@ -55,7 +58,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const { data: profile } = await supabase
         .from('profiles')
         .upsert(
-          { email: data.email, name: fullName, role: 'operator' },
+          { email: profileEmail, name: fullName, role: 'operator' },
           { onConflict: 'email', ignoreDuplicates: true },
         )
         .select('id, role')
@@ -69,7 +72,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const { data: existing } = await supabase
           .from('profiles')
           .select('id, role')
-          .eq('email', data.email)
+          .eq('email', profileEmail)
           .single();
         if (existing) {
           role = existing.role;
@@ -86,7 +89,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     employeeInternalId: data.employeeInternalId,
     firstName: data.firstName,
     lastName: data.lastName,
-    email: data.email,
+    email: data.email ?? employeeInternalId,
     language: data.language,
     instanceId: data.instanceId ?? Number(instanceId),
     role,

@@ -189,8 +189,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // ORO / Admin / Supervisor: all requests
     // ─────────────────────────────────────────────
     if (path === 'certifications' && req.method === 'GET') {
-      const profile = await getProfile(supabase, user.email);
-      const isOperator = !profile || profile.role === 'operator';
+      const isOperator = user.role === 'operator' || !user.role;
 
       let q = supabase
         .from('certification_requests')
@@ -211,9 +210,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         .order('created_at', { ascending: false });
 
       if (isOperator) {
-        const profileRow = await getProfile(supabase, user.email);
-        if (!profileRow) return res.status(200).json({ data: [] });
-        q = q.eq('operator_id', profileRow.id);
+        const profileId = await getProfileId(supabase, user);
+        if (!profileId) return res.status(200).json({ data: [] });
+        q = q.eq('operator_id', profileId);
       }
 
       const { data, error } = await q;
@@ -231,13 +230,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const { operationId } = req.body as { operationId?: string };
       if (!operationId) return res.status(400).json({ error: 'operationId required' });
 
-      const profile = await getProfile(supabase, user.email);
-      if (!profile) return res.status(403).json({ error: 'Profile not found' });
+      const profileId = await getProfileId(supabase, user);
+      if (!profileId) return res.status(403).json({ error: 'Profile not found' });
 
       const { data, error } = await supabase
         .from('certification_requests')
         .insert({
-          operator_id: profile.id,
+          operator_id: profileId,
           operation_id: operationId,
           status: 'in_progress',
           attempt_number: 0,
@@ -274,14 +273,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // ─────────────────────────────────────────────
     if (parts[0] === 'certifications' && parts[2] === 'cancel' && req.method === 'PATCH') {
       const id = parts[1];
-      const profile = await getProfile(supabase, user.email);
-      if (!profile) return res.status(403).json({ error: 'Profile not found' });
+      const profileId = await getProfileId(supabase, user);
+      if (!profileId) return res.status(403).json({ error: 'Profile not found' });
 
       const { error } = await supabase
         .from('certification_requests')
         .update({ status: 'cancelled' })
         .eq('id', id)
-        .eq('operator_id', profile.id)
+        .eq('operator_id', profileId)
         .eq('status', 'in_progress');
 
       if (error) throw error;
@@ -346,8 +345,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(400).json({ error: 'requestId, tiempoRegistradoSeg, result required' });
       }
 
-      const oroProfile = await getProfile(supabase, user.email);
-      if (!oroProfile) return res.status(403).json({ error: 'Profile not found' });
+      const oroProfileId = await getProfileId(supabase, user);
+      if (!oroProfileId) return res.status(403).json({ error: 'Profile not found' });
 
       // Fetch the request to get current attempt number and operation data
       const { data: reqData, error: reqErr } = await supabase
@@ -372,7 +371,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         .from('certification_attempts')
         .insert({
           request_id: requestId,
-          evaluator_id: oroProfile.id,
+          evaluator_id: oroProfileId,
           attempt_number: newAttemptNumber,
           completed_at: new Date().toISOString(),
           tiempo_registrado_seg: tiempoRegistradoSeg,
@@ -417,8 +416,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     // ORO sees all attempts they conducted
     // ─────────────────────────────────────────────
     if (path === 'oro/history' && req.method === 'GET') {
-      const oroProfile = await getProfile(supabase, user.email);
-      if (!oroProfile) return res.status(200).json({ data: [] });
+      const oroProfileId = await getProfileId(supabase, user);
+      if (!oroProfileId) return res.status(200).json({ data: [] });
 
       const { data, error } = await supabase
         .from('certification_attempts')
@@ -436,7 +435,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             )
           )
         `)
-        .eq('evaluator_id', oroProfile.id)
+        .eq('evaluator_id', oroProfileId)
         .order('completed_at', { ascending: false });
 
       if (error) throw error;
@@ -613,6 +612,16 @@ async function getProfile(supabase: any, email: string) {
     .eq('email', email)
     .single();
   return data ?? null;
+}
+
+// Use supabaseProfileId from session first (avoids email mismatch between Janus and DB).
+// Falls back to email lookup for sessions created before supabaseProfileId was stored.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function getProfileId(supabase: any, user: { supabaseProfileId?: string; email?: string }): Promise<string | null> {
+  if (user.supabaseProfileId) return user.supabaseProfileId;
+  if (!user.email) return null;
+  const profile = await getProfile(supabase, user.email);
+  return profile?.id ?? null;
 }
 
 function shapeProcess(p: any) {
