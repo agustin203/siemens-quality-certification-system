@@ -1,7 +1,9 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
-import { requireUser } from '../../../_lib/session.js';
-import { getSupabaseClient } from '../../_lib.js';
+import { requireUser } from '../_lib/session.js';
+import { getSupabaseClient } from './_lib.js';
+
+// PATCH /api/supabase/certification-cancel?id=xxx
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'PATCH') return res.status(405).json({ error: 'Method not allowed' });
@@ -28,7 +30,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (error) throw error;
     return res.status(200).json({ ok: true });
   } catch (err) {
-    console.error('[certifications/cancel]', err);
+    console.error('[certification-cancel]', err);
     return res.status(500).json({ error: 'Internal server error' });
   }
 }

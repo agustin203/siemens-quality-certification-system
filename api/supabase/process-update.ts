@@ -1,11 +1,9 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
-import { requireUser } from '../../_lib/session.js';
-import { getSupabaseClient } from '../_lib.js';
+import { requireUser } from '../_lib/session.js';
+import { getSupabaseClient } from './_lib.js';
 
-// Handles:
-//   PATCH /api/supabase/processes/:id          → edit metadata
-//   PATCH /api/supabase/processes/:id/status   → publish / archive
+// PATCH /api/supabase/process-update?id=xxx  → edit metadata
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'PATCH') return res.status(405).json({ error: 'Method not allowed' });
@@ -13,31 +11,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const user = await requireUser(req);
   if (!user) return res.status(401).json({ error: 'Unauthorized' });
 
-  const raw = req.query.segments;
-  const segments = Array.isArray(raw) ? raw : [raw ?? ''];
-  const id = segments[0];
-  const sub = segments[1]; // 'status' or undefined
-
+  const id = req.query.id as string;
   if (!id) return res.status(400).json({ error: 'id required' });
 
   const supabase = getSupabaseClient();
 
   try {
-    // ── PATCH /processes/:id/status ──────────────────────────────
-    if (sub === 'status') {
-      const { status } = req.body as { status?: string };
-      if (!status) return res.status(400).json({ error: 'status required' });
-
-      const { error } = await supabase
-        .from('processes')
-        .update({ status })
-        .eq('id', id);
-
-      if (error) throw error;
-      return res.status(200).json({ ok: true });
-    }
-
-    // ── PATCH /processes/:id (edit metadata) ─────────────────────
     const { nombre, modelo, familia, linea, turno } = req.body as {
       nombre?: string; modelo?: string; familia?: string;
       linea?: string; turno?: string;
@@ -73,7 +52,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       },
     });
   } catch (err) {
-    console.error('[processes/[...segments]]', err);
+    console.error('[process-update]', err);
     return res.status(500).json({ error: 'Internal server error' });
   }
 }

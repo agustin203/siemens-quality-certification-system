@@ -39,7 +39,7 @@ export const certificationsService = {
 
   /** Operator: cancel an in-progress request */
   cancel(id: string): Promise<{ ok: boolean }> {
-    return apiFetch(`certifications/${id}/cancel`, { method: 'PATCH' });
+    return apiFetch(`certification-cancel?id=${encodeURIComponent(id)}`, { method: 'PATCH' });
   },
 
   /** Fetch attempts for a specific certification request */
@@ -47,6 +47,23 @@ export const certificationsService = {
     data: import('../pages/Operator/types').CertificationAttempt[];
   }> {
     return apiFetch(`attempts?requestId=${encodeURIComponent(requestId)}`);
+  },
+
+  /** Operator: full history of all their attempts */
+  listHistory(): Promise<{
+    data: {
+      id: string;
+      attemptNumber: number;
+      completedAt: string;
+      tiempoRegistradoSeg: number;
+      tiempoEstandarSeg: number;
+      result: 'passed' | 'failed';
+      evaluatorName: string;
+      operationName: string;
+      processName: string;
+    }[];
+  }> {
+    return apiFetch('operator-history');
   },
 
   /** Processes list */

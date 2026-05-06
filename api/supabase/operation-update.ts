@@ -1,7 +1,10 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
-import { requireUser } from '../../_lib/session.js';
-import { getSupabaseClient } from '../_lib.js';
+import { requireUser } from '../_lib/session.js';
+import { getSupabaseClient } from './_lib.js';
+
+// PATCH /api/supabase/operation-update?id=xxx  → edit
+// DELETE /api/supabase/operation-update?id=xxx → delete
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const user = await requireUser(req);
@@ -50,7 +53,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     return res.status(405).json({ error: 'Method not allowed' });
   } catch (err) {
-    console.error('[operations/[id]]', err);
+    console.error('[operation-update]', err);
     return res.status(500).json({ error: 'Internal server error' });
   }
 }

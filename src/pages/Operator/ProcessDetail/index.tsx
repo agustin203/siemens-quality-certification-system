@@ -16,40 +16,34 @@ import TableRow from '@material-hu/components/design-system/Table/components/Tab
 import Title from '@material-hu/components/design-system/Title';
 
 import { DashboardLayout } from '../../../layouts/DashboardLayout';
-import {
-  MOCK_CERTIFICATIONS,
-  OPERATOR_OPERATIONS_BY_PROCESS,
-  PROCESS_FILTER_OPTIONS,
-} from '../constants';
-
-const getOperationStatus = (operationId: string) => {
-  const certs = MOCK_CERTIFICATIONS.filter(c => c.operationId === operationId);
-  if (certs.some(c => c.status === 'approved'))
-    return { label: 'Certificada', type: 'success' as const };
-  if (certs.some(c => c.status === 'in_progress'))
-    return { label: 'En proceso', type: 'warning' as const };
-  return { label: 'Sin certificar', type: 'disabled' as const };
-};
+import { useMyCertifications } from '../../../services/certifications.hooks';
+import { useProcessOperations } from '../../../services/processes.hooks';
 
 const OperatorProcessDetail = () => {
   const navigate = useNavigate();
   const { processId } = useParams<{ processId: string }>();
   const location = useLocation();
-  const processName =
-    (location.state as string | undefined) ??
-    PROCESS_FILTER_OPTIONS.find(p => p.value === processId)?.label;
+  const processName = location.state as string | undefined;
 
-  const operations = processId
-    ? (OPERATOR_OPERATIONS_BY_PROCESS[processId] ?? [])
-    : [];
+  const { data: operations = [], isLoading: loadingOps } = useProcessOperations(processId ?? '');
+  const { data: myCertifications = [] } = useMyCertifications();
 
-  if (!processId || operations.length === 0) {
+  const getOperationStatus = (operationId: string) => {
+    const certs = myCertifications.filter(c => c.operationId === operationId);
+    if (certs.some(c => c.status === 'approved'))
+      return { label: 'Certificada', type: 'success' as const };
+    if (certs.some(c => c.status === 'in_progress'))
+      return { label: 'En proceso', type: 'warning' as const };
+    return { label: 'Sin certificar', type: 'disabled' as const };
+  };
+
+  if (!loadingOps && (!processId || operations.length === 0)) {
     return (
       <DashboardLayout>
         <StateCard
           Icon={IconClipboardList}
-          title="Proceso no encontrado"
-          description="No se encontraron operaciones para este proceso."
+          title="Sin operaciones"
+          description="Este proceso no tiene operaciones cargadas todavía."
           slotProps={{ title: { variant: 'M' }, avatar: { color: 'default' } }}
         />
       </DashboardLayout>
@@ -76,22 +70,28 @@ const OperatorProcessDetail = () => {
             <TableHead>
               <TableRow>
                 <TableCell>Operación</TableCell>
+                <TableCell>Tiempo estándar</TableCell>
                 <TableCell>Estado</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {operations.map(op => {
-                const status = getOperationStatus(op.value);
+                const status = getOperationStatus(op.id);
                 return (
-                  <TableRow key={op.value}>
+                  <TableRow key={op.id}>
                     <TableCell>
-                      <Typography variant="body2">{op.label}</Typography>
+                      <Typography variant="body2">{op.nombre}</Typography>
                     </TableCell>
                     <TableCell>
-                      <Pills
-                        label={status.label}
-                        type={status.type}
-                      />
+                      <Typography
+                        variant="body2"
+                        sx={{ color: 'new.text.neutral.subtle' }}
+                      >
+                        {op.tiempo_estandar_seg}s
+                      </Typography>
+                    </TableCell>
+                    <TableCell>
+                      <Pills label={status.label} type={status.type} />
                     </TableCell>
                   </TableRow>
                 );

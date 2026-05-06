@@ -8,9 +8,9 @@ import Stack from '@material-hu/mui/Stack';
 import FormInputSelect from '@material-hu/components/design-system/Inputs/Select/form';
 
 import {
-  OPERATOR_OPERATIONS_BY_PROCESS,
-  PROCESS_FILTER_OPTIONS,
-} from '../../../constants';
+  useProcessList,
+  useProcessOperations,
+} from '../../../../../services/processes.hooks';
 
 const schema = z.object({
   processId: z.string().min(1, 'Requerido'),
@@ -34,7 +34,19 @@ const NewCertificationForm = ({ onSubmit }: NewCertificationFormProps) => {
 
   const { setValue } = methods;
   const processId = methods.watch('processId');
-  const operationOptions = OPERATOR_OPERATIONS_BY_PROCESS[processId] ?? [];
+
+  const { data: allProcesses = [] } = useProcessList();
+  const publishedProcesses = allProcesses.filter(p => p.status === 'published');
+  const processOptions = publishedProcesses.map(p => ({
+    value: p.id,
+    label: p.nombre,
+  }));
+
+  const { data: operations = [] } = useProcessOperations(processId);
+  const operationOptions = operations.map(op => ({
+    value: op.id,
+    label: op.nombre,
+  }));
 
   useEffect(() => {
     if (processId !== undefined) {
@@ -54,7 +66,7 @@ const NewCertificationForm = ({ onSubmit }: NewCertificationFormProps) => {
             inputProps={{
               label: 'Proceso',
               placeholder: 'Seleccioná un proceso',
-              options: PROCESS_FILTER_OPTIONS,
+              options: processOptions,
             }}
           />
           <FormInputSelect

@@ -126,7 +126,7 @@ const ProcessList = () => {
         icon: IconEdit,
         onSelect: () => openEditDrawer(process),
       },
-      ...(process.status === 'draft'
+      ...(process.status !== 'published'
         ? [
             {
               id: 'publish',

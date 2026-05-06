@@ -456,6 +456,58 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // ─────────────────────────────────────────────
+    // GET /api/supabase/operator-history
+    // All attempts for the logged-in operator (full history with names)
+    // ─────────────────────────────────────────────
+    if (path === 'operator-history' && req.method === 'GET') {
+      const profileId = await getProfileId(supabase, user);
+      if (!profileId) return res.status(200).json({ data: [] });
+
+      const { data, error } = await supabase
+        .from('certification_attempts')
+        .select(`
+          id,
+          attempt_number,
+          completed_at,
+          tiempo_registrado_seg,
+          result,
+          evaluator:profiles!evaluator_id(name),
+          request:certification_requests!request_id(
+            operator_id,
+            operation:operations!operation_id(
+              name,
+              tiempo_estandar_seg,
+              process:processes!process_id(name)
+            )
+          )
+        `)
+        .eq('request.operator_id', profileId)
+        .order('completed_at', { ascending: false });
+
+      if (error) throw error;
+
+      const shaped = (data ?? [])
+        .filter((a) => (a.request as any)?.operator_id === profileId)
+        .map((a) => {
+          const req = a.request as any;
+          const op = req?.operation;
+          const proc = op?.process;
+          return {
+            id: a.id,
+            attemptNumber: a.attempt_number,
+            completedAt: a.completed_at,
+            tiempoRegistradoSeg: Number(a.tiempo_registrado_seg),
+            tiempoEstandarSeg: Number(op?.tiempo_estandar_seg ?? 0),
+            result: a.result,
+            evaluatorName: (a.evaluator as any)?.name ?? '',
+            operationName: op?.name ?? '',
+            processName: proc?.name ?? '',
+          };
+        });
+
+      return res.status(200).json({ data: shaped });
+    }
+
     // GET /api/supabase/attempts?requestId=<uuid>
     // Attempts for a specific certification request
     // ─────────────────────────────────────────────

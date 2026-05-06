@@ -1,3 +1,5 @@
+import { useQuery } from '@tanstack/react-query';
+
 import { IconHistory } from '@material-hu/icons/tabler';
 import Stack from '@material-hu/mui/Stack';
 import Typography from '@material-hu/mui/Typography';
@@ -13,7 +15,7 @@ import TableRow from '@material-hu/components/design-system/Table/components/Tab
 import Title from '@material-hu/components/design-system/Title';
 
 import { DashboardLayout } from '../../../layouts/DashboardLayout';
-import { MOCK_ATTEMPTS } from '../constants';
+import { certificationsService } from '../../../services/certifications';
 
 const formatDate = (dateStr: string) =>
   new Date(dateStr).toLocaleDateString('es-AR', {
@@ -23,10 +25,10 @@ const formatDate = (dateStr: string) =>
   });
 
 const OperatorHistory = () => {
-  const attempts = [...MOCK_ATTEMPTS].sort(
-    (a, b) =>
-      new Date(b.completedAt).getTime() - new Date(a.completedAt).getTime(),
-  );
+  const { data: attempts = [] } = useQuery({
+    queryKey: ['operator-history'],
+    queryFn: () => certificationsService.listHistory().then(r => r.data),
+  });
 
   return (
     <DashboardLayout>
@@ -110,9 +112,7 @@ const OperatorHistory = () => {
                     </TableCell>
                     <TableCell>
                       <Pills
-                        label={
-                          attempt.result === 'passed' ? 'APROBADO' : 'REPROBADO'
-                        }
+                        label={attempt.result === 'passed' ? 'APROBADO' : 'REPROBADO'}
                         type={attempt.result === 'passed' ? 'success' : 'error'}
                       />
                     </TableCell>

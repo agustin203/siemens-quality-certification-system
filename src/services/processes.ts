@@ -41,14 +41,14 @@ export const processesService = {
       'nombre' | 'modelo' | 'familia' | 'linea' | 'turno'
     >,
   ): Promise<{ data: CertificationProcess }> {
-    return apiFetch(`processes/${id}`, {
+    return apiFetch(`process-update?id=${encodeURIComponent(id)}`, {
       method: 'PATCH',
       body: JSON.stringify(data),
     });
   },
 
   setStatus(id: string, status: ProcessStatus): Promise<{ ok: boolean }> {
-    return apiFetch(`processes/${id}/status`, {
+    return apiFetch(`process-status?id=${encodeURIComponent(id)}`, {
       method: 'PATCH',
       body: JSON.stringify({ status }),
     });
@@ -78,7 +78,7 @@ export const processesService = {
     id: string,
     data: Pick<CertificationOperation, 'nombre' | 'tiempo_estandar_seg'>,
   ): Promise<{ data: CertificationOperation }> {
-    return apiFetch(`operations/${id}`, {
+    return apiFetch(`operation-update?id=${encodeURIComponent(id)}`, {
       method: 'PATCH',
       body: JSON.stringify({
         nombre: data.nombre,
@@ -88,6 +88,6 @@ export const processesService = {
   },
 
   deleteOperation(id: string): Promise<{ ok: boolean }> {
-    return apiFetch(`operations/${id}`, { method: 'DELETE' });
+    return apiFetch(`operation-update?id=${encodeURIComponent(id)}`, { method: 'DELETE' });
   },
 };
