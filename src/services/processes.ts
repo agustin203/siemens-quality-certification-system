@@ -66,7 +66,11 @@ export const processesService = {
   ): Promise<{ data: CertificationOperation }> {
     return apiFetch('operations', {
       method: 'POST',
-      body: JSON.stringify({ processId, ...data }),
+      body: JSON.stringify({
+        processId,
+        nombre: data.nombre,
+        tiempoEstandarSeg: data.tiempo_estandar_seg,
+      }),
     });
   },
 
@@ -76,7 +80,10 @@ export const processesService = {
   ): Promise<{ data: CertificationOperation }> {
     return apiFetch(`operations/${id}`, {
       method: 'PATCH',
-      body: JSON.stringify(data),
+      body: JSON.stringify({
+        nombre: data.nombre,
+        tiempoEstandarSeg: data.tiempo_estandar_seg,
+      }),
     });
   },
 

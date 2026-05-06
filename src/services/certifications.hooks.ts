@@ -38,6 +38,7 @@ export function useCreateCertification() {
     mutationFn: (operationId: string) =>
       certificationsService.create({ operationId }),
     onSuccess: () => qc.invalidateQueries({ queryKey: certKeys.mine() }),
+    onError: err => console.error('[useCreateCertification]', err),
   });
 }
 
@@ -46,6 +47,7 @@ export function useCancelCertification() {
   return useMutation({
     mutationFn: (id: string) => certificationsService.cancel(id),
     onSuccess: () => qc.invalidateQueries({ queryKey: certKeys.mine() }),
+    onError: err => console.error('[useCancelCertification]', err),
   });
 }
 
@@ -92,5 +94,6 @@ export function useSubmitAttempt() {
       qc.invalidateQueries({ queryKey: certKeys.oroHistory() });
       qc.invalidateQueries({ queryKey: certKeys.mine() });
     },
+    onError: err => console.error('[useSubmitAttempt]', err),
   });
 }

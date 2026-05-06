@@ -34,6 +34,7 @@ export function useCreateProcess() {
       >,
     ) => processesService.create(data),
     onSuccess: () => qc.invalidateQueries({ queryKey: processKeys.list() }),
+    onError: err => console.error('[useCreateProcess]', err),
   });
 }
 
@@ -51,6 +52,7 @@ export function useUpdateProcess() {
       >;
     }) => processesService.update(id, data),
     onSuccess: () => qc.invalidateQueries({ queryKey: processKeys.list() }),
+    onError: err => console.error('[useUpdateProcess]', err),
   });
 }
 
@@ -60,6 +62,7 @@ export function useSetProcessStatus() {
     mutationFn: ({ id, status }: { id: string; status: ProcessStatus }) =>
       processesService.setStatus(id, status),
     onSuccess: () => qc.invalidateQueries({ queryKey: processKeys.list() }),
+    onError: err => console.error('[useSetProcessStatus]', err),
   });
 }
 
