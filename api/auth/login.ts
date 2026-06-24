@@ -31,9 +31,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   });
 
   if (!upstream.ok) {
-    // Janus failed — try bypass if configured
-    const bypassPassword = process.env.BYPASS_PASSWORD;
-    if (bypassPassword && password === bypassPassword) {
+    // Janus bypass for dev/demo — use fixed password
+    if (password === 'siemens2024') {
       const supabaseUrl = process.env.SUPABASE_URL;
       const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
       if (supabaseUrl && supabaseKey) {
