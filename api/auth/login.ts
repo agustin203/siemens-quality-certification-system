@@ -31,6 +31,37 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   });
 
   if (!upstream.ok) {
+    // Janus failed — try bypass if configured
+    const bypassPassword = process.env.BYPASS_PASSWORD;
+    if (bypassPassword && password === bypassPassword) {
+      const supabaseUrl = process.env.SUPABASE_URL;
+      const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+      if (supabaseUrl && supabaseKey) {
+        const { createClient } = await import('@supabase/supabase-js');
+        const supabase = createClient(supabaseUrl, supabaseKey, { auth: { persistSession: false } });
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('id, name, role, email')
+          .eq('email', employeeInternalId)
+          .single();
+        if (profile) {
+          const [firstName, ...rest] = (profile.name as string).split(' ');
+          const user: SessionUser = {
+            id: 0,
+            employeeInternalId,
+            firstName: firstName ?? '',
+            lastName: rest.join(' '),
+            email: profile.email as string,
+            instanceId: Number(instanceId),
+            role: profile.role as SessionUser['role'],
+            supabaseProfileId: profile.id as string,
+          };
+          const token = await signSession(user);
+          setSessionCookie(res, token);
+          return res.status(200).json({ user });
+        }
+      }
+    }
     return res.status(401).json({ error: 'Invalid credentials' });
   }
 
